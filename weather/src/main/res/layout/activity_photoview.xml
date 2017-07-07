@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    >
+  <android.support.design.widget.AppBarLayout
+      android:id="@+id/appbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@drawable/bg_tab2"
+      android:fitsSystemWindows="true"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"
+        >
+      <!--<com.wearapay.brotherweather.weight.CustomTransparentStatusBar-->
+      <!--android:layout_width="match_parent"-->
+      <!--android:fitsSystemWindows="true"-->
+      <!--android:layout_height="0dp"-->
+      <!--/>-->
+
+      <FrameLayout
+          android:layout_width="match_parent"
+          android:layout_height="44dp"
+          android:fitsSystemWindows="true"
+          >
+        <include layout="@layout/title_view"/>
+      </FrameLayout>
+    </LinearLayout>
+
+  </android.support.design.widget.AppBarLayout>
+  <FrameLayout
+      android:id="@+id/frameLayout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_behavior="@string/appbar_scrolling_view_behavior"
+      >
+
+    <com.wearapay.brotherweather.weight.PhotoViewPager
+        android:id="@+id/photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_photo"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_gravity="bottom"
+        android:background="#77000000"
+        >
+      <TextView
+          android:id="@+id/tvContent"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:textColor="@android:color/white"
+          />
+    </LinearLayout>
+
+  </FrameLayout>
+
+  <android.support.design.widget.FloatingActionButton
+      android:id="@+id/floatingActionButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|left"
+      android:layout_margin="20dp"
+      android:clickable="true"
+      android:src="@drawable/add"
+      app:layout_anchor="@+id/frameLayout"
+      app:layout_anchorGravity="bottom|right"
+      />
+
+</android.support.design.widget.CoordinatorLayout>
+

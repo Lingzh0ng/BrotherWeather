@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <declare-styleable name="GradientProgressBar">
+    <attr format="dimension" name="pp_round_radius"/>
+    <attr format="float" name="pp_max_progress"/>
+    <attr format="float" name="pp_current_progress"/>
+    <attr format="boolean" name="pp_is_round"/>
+  </declare-styleable>
+
+</resources>

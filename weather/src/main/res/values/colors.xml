@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="colorPrimary">#1D98D0</color>
+  <color name="colorPrimaryDark">#1D98D0</color>
+  <color name="colorAccent">#1D98D0</color>
+  <color name="hui">#D3D2CD</color>
+  <color name="hei">#67646D</color>
+  <color name="transparent">#00000000</color>
+
+  <color name="upgrade_firmware_progress_start">#EC7421</color>
+  <color name="upgrade_firmware_progress_end">#AAA</color>
+  <color name="text_color_black">#000000</color>
+  <color name="highlight">#1D98D0</color>
+  <color name="light">#2D98D0</color>
+  <color name="primary">#3398D0</color>
+  <color name="progress_dialog_bg">#771D98D0</color>
+</resources>

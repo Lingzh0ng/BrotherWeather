@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="weekdays">
+    <item>周日</item>
+    <item>周一</item>
+    <item>周二</item>
+    <item>周三</item>
+    <item>周四</item>
+    <item>周五</item>
+    <item>周六</item>
+  </string-array>
+
+  <array name="gradients">
+    <item>#DD4B6B</item>
+    <item>#A48CC7</item>
+    <item>#78B1FA </item>
+    <item>#1D98D0</item>
+  </array>
+</resources>
