@@ -1,7 +1,6 @@
 package com.wearapay.brotherweather.ui.modules.main;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
@@ -21,8 +20,10 @@ import com.wearapay.brotherweather.domain.GankioData;
 import com.wearapay.brotherweather.domain.GankioType;
 import com.wearapay.brotherweather.domain.MainPager;
 import com.wearapay.brotherweather.rep.LocalRepository;
-import com.wearapay.brotherweather.ui.modules.city.CityListActivity;
 import com.wearapay.brotherweather.ui.modules.main.adapter.MainAdapter;
+import com.wearapay.brotherweather.ui.modules.main.presenter.MainSettingPresenter;
+import com.wearapay.brotherweather.ui.modules.main.view.IMainSettingView;
+import com.wearapay.brotherweather.ui.modules.type.TypeListActivity;
 import com.wearapay.brotherweather.ui.presenter.GankioAllPresenter;
 import com.wearapay.brotherweather.ui.view.IGankioView;
 import com.wearapay.brotherweather.weight.MainIndicator;
@@ -30,9 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-public class MainActivity extends BWBaseActivity implements IGankioView {
+public class MainActivity extends BWBaseActivity implements IGankioView, IMainSettingView {
 
   @Inject GankioAllPresenter presenter;
+  @Inject MainSettingPresenter mainSettingPresenter;
   @Inject LocalRepository localRepository;
   @BindView(R.id.llTab) LinearLayout llTab;
   @BindView(R.id.vp) ViewPager vp;
@@ -40,7 +42,7 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
   @BindView(R.id.ivCities) ImageView ivCities;
   @BindView(R.id.ivSetting) ImageView ivSetting;
   private MainAdapter adapter;
-  private List<MainPager> cityList;
+  private ArrayList<MainPager> cityList;
   private List<GankioData> gankioDatas;
   private int mainPageCount;
 
@@ -49,7 +51,6 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
   }
 
   protected void initView() {
-    SharedPreferences sharedPreferences = getSharedPreferences("bw_sp", MODE_PRIVATE);
     mainPageCount = localRepository.getMainPageCount();
     cityList = new ArrayList<>(mainPageCount);
 
@@ -81,7 +82,6 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
 
       @Override public void onPageSelected(int position) {
         indicator.setSelect(position);
-        //startActivity(new Intent(MainActivity.this, CityListActivity.class));
       }
 
       @Override public void onPageScrollStateChanged(int state) {
@@ -99,15 +99,13 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
   }
 
   @Override protected BasePresenter[] initPresenters() {
-    return new BasePresenter[] { presenter };
+    return new BasePresenter[] { presenter, mainSettingPresenter };
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     ((App) getApplication()).getComponent().inject(this);
     super.onCreate(savedInstanceState);
-    //        setContentView(R.layout.activity_main);
     ButterKnife.bind(MainActivity.this);
-    //        vp.setOffscreenPageLimit(1);
     initView();
     initData();
   }
@@ -120,22 +118,34 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
 
   }
 
+  private static int REQ_CODE_SETTING = 1;
+
   @OnClick({ R.id.ivCities, R.id.ivSetting }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.ivCities:
-        startActivity(new Intent(MainActivity.this, CityListActivity.class));
+        Intent intent = new Intent(MainActivity.this, TypeListActivity.class);
+        intent.putExtra("mainpager", cityList);
+        startActivityForResult(intent, REQ_CODE_SETTING);
         break;
       case R.id.ivSetting:
         break;
     }
   }
 
+  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (REQ_CODE_SETTING == requestCode) {
+      //TODO
+      if (data != null) {
+        int position = data.getIntExtra("position", vp.getCurrentItem());
+        vp.setCurrentItem(position, false);
+      }
+    }
+  }
+
   @Override public void display(List<GankioData> gankioDatas) {
     this.gankioDatas = gankioDatas;
-    cityList.add(new MainPager(GankioType.Android, gankioDatas.get(0).getUrl(), 0));
-    cityList.add(new MainPager(GankioType.IOS, gankioDatas.get(1).getUrl(), 1));
-    cityList.add(new MainPager(GankioType.Web, gankioDatas.get(2).getUrl(), 2));
-    adapter.notifyDataSetChanged();
+    mainSettingPresenter.getMainSetting(gankioDatas);
   }
 
   @Override public void displayError() {
@@ -152,5 +162,11 @@ public class MainActivity extends BWBaseActivity implements IGankioView {
     } else {
       ((App) getApplication()).exitApp();
     }
+  }
+
+  @Override public void displayMainPager(List<MainPager> mainPagerList) {
+    cityList.clear();
+    cityList.addAll(mainPagerList);
+    adapter.notifyDataSetChanged();
   }
 }

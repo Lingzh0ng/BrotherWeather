@@ -3,6 +3,9 @@
     package="com.wearapay.brotherweather">
 
   <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
   <application
       android:name=".App"
       android:allowBackup="true"
@@ -29,6 +32,7 @@
     <activity android:name=".ui.modules.city.CityListActivity"/>
     <activity android:name=".ui.modules.web.WebViewActivity"/>
     <activity android:name=".ui.modules.photo.PhotoViewActivity"/>
+    <activity android:name=".ui.modules.type.TypeListActivity"/>
   </application>
 
 </manifest>

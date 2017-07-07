@@ -6,8 +6,6 @@ package com.wearapay.brotherweather.dagger2;
 
 import com.wearapay.brotherweather.App;
 import com.wearapay.brotherweather.common.BWBaseActivity;
-import com.wearapay.brotherweather.dagger2.db.WeatherDaoModule;
-import com.wearapay.brotherweather.dagger2.net.WeatherRestModule;
 import com.wearapay.brotherweather.ui.modules.city.CityListActivity;
 import com.wearapay.brotherweather.ui.modules.main.MainActivity;
 import com.wearapay.brotherweather.ui.modules.main.fragment.MainFragment;
@@ -16,7 +14,7 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton @Component(modules = {
-    ApplicationModule.class, WeatherRestModule.class, WeatherDaoModule.class
+    ApplicationModule.class, RepositoryModule.class
 }) public interface ApplicationComponent {
   void inject(App application);
 

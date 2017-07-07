@@ -37,8 +37,8 @@
     </LinearLayout>
 
   </android.support.design.widget.AppBarLayout>
-  <LinearLayout
-      android:id="@+id/linearLayout"
+  <FrameLayout
+      android:id="@+id/frameLayout"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
@@ -58,7 +58,20 @@
           android:scrollbars="none"
           />
     </com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout>
-  </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSave"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/btn_setting_bg"
+        android:gravity="center"
+        android:text="保存设置"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        />
+  </FrameLayout>
 
   <android.support.design.widget.FloatingActionButton
       android:id="@+id/floatingActionButton"
@@ -68,7 +81,7 @@
       android:layout_margin="20dp"
       android:clickable="true"
       android:src="@drawable/add"
-      app:layout_anchor="@+id/linearLayout"
+      app:layout_anchor="@+id/frameLayout"
       app:layout_anchorGravity="bottom|right"
       />
 

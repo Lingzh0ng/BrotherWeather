@@ -1,9 +1,11 @@
 package com.wearapay.brotherweather.domain;
 
+import java.io.Serializable;
+
 /**
  * Created by lyz on 2017/7/3.
  */
-public class MainPager {
+public class MainPager implements Serializable{
   private GankioType type;
   private String meiziUrl;
   private int currentPager;

@@ -154,11 +154,9 @@ public class WebViewActivity extends BWBaseActivity {
         }
 
         if (view.canGoBack()) {
-          //customActionBar.setRight2Visibility(true);
-          ivMenu.setVisibility(View.GONE);
-        } else {
-          //customActionBar.setRight2Visibility(false);
           ivMenu.setVisibility(View.VISIBLE);
+        } else {
+          ivMenu.setVisibility(View.GONE);
         }
       }
     });

@@ -26,8 +26,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by lyz54 on 2017/6/27.
  */
-@Module public class WeatherRestModule {
-  @Provides IWeatherRestService provideIWeatherRestService(OkHttpClient client) {
+@Module @Singleton public class WeatherRestModule {
+  @Provides @Singleton IWeatherRestService provideIWeatherRestService(OkHttpClient client) {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(BWConts.URL + "/")
         .client(client)
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -37,7 +37,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     return retrofit.create(IWeatherRestService.class);
   }
 
-  @Provides IGankioRestService provideIGankioRestService(OkHttpClient client) {
+  @Provides @Singleton IGankioRestService provideIGankioRestService(OkHttpClient client) {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(BWConts.GANKIO_HSOT)
         .client(client)
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -47,7 +47,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     return retrofit.create(IGankioRestService.class);
   }
 
-  @Provides ICityRestService provideICityRestService(OkHttpClient client) {
+  @Provides @Singleton ICityRestService provideICityRestService(OkHttpClient client) {
     Retrofit retrofit = new Retrofit.Builder().baseUrl(BWConts.URL_CITY + "/")
         .client(client)
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
