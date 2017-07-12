@@ -1,7 +1,10 @@
 package com.wearapay.brotherweather.ui.modules.main;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
@@ -45,6 +48,7 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
   private ArrayList<MainPager> cityList;
   private List<GankioData> gankioDatas;
   private int mainPageCount;
+  private GankioType type = null;
 
   public List<GankioData> getGankioDatas() {
     return gankioDatas;
@@ -89,7 +93,7 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
       }
     });
     indicator.setNum(mainPageCount);
-    vp.setOffscreenPageLimit(mainPageCount - 1);
+    vp.setOffscreenPageLimit(1);
 
     presenter.getGankioData(GankioType.Fuli, 10, 1);
   }
@@ -128,6 +132,18 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
         startActivityForResult(intent, REQ_CODE_SETTING);
         break;
       case R.id.ivSetting:
+        //Bitmap btm = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher1);
+        NotificationCompat.Builder mBuilder =
+            new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher1)
+                //.setColor(Color.parseColor("#FB793A"))
+                .setContentTitle("标题")
+                .setContentText("我是内容");
+        mBuilder.setTicker("有通知来了");
+        //mBuilder.setLargeIcon(btm);
+        mBuilder.setAutoCancel(true);
+        NotificationManager mNotificationManager =
+            (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1, mBuilder.build());
         break;
     }
   }
@@ -137,9 +153,28 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
     if (REQ_CODE_SETTING == requestCode) {
       //TODO
       if (data != null) {
-        int position = data.getIntExtra("position", vp.getCurrentItem());
-        vp.setCurrentItem(position, false);
+        boolean isListChange = data.getBooleanExtra("isListChange", false);
+        if (data.hasExtra("positionType")) {
+          type = (GankioType) data.getSerializableExtra("positionType");
+        }
+        if (isListChange) {
+          mainSettingPresenter.getMainSetting(gankioDatas);
+        } else {
+          setViewPageCurrentItem(type);
+        }
       }
+    }
+  }
+
+  private void setViewPageCurrentItem(GankioType type) {
+    if (type != null) {
+      for (int i = 0; i < cityList.size(); i++) {
+        if (cityList.get(i).getType().equals(type)) {
+          vp.setCurrentItem(i, false);
+        }
+      }
+    } else {
+      vp.setCurrentItem(0, false);
     }
   }
 
@@ -165,8 +200,10 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
   }
 
   @Override public void displayMainPager(List<MainPager> mainPagerList) {
+    indicator.setNum(mainPagerList.size());
     cityList.clear();
-    cityList.addAll(mainPagerList);
-    adapter.notifyDataSetChanged();
+    cityList = (ArrayList<MainPager>) mainPagerList;
+    adapter.notifyDataSetChanged(cityList);
+    setViewPageCurrentItem(type);
   }
 }

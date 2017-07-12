@@ -1,5 +1,6 @@
 package com.wearapay.brotherweather.rep;
 
+import android.util.Log;
 import com.wearapay.brotherweather.BWConts;
 import com.wearapay.brotherweather.db.BWGreenDaoService;
 import com.wearapay.brotherweather.db.entity.BrowseHistory;
@@ -85,7 +86,10 @@ import javax.inject.Singleton;
             if (list == null || list.size() == 0) {
               MainSetting mainSetting =
                   new MainSetting(BWConts.MAIN_SETTING_ID, 3, "Android,IOS,Web");
-              updateMainSetting(mainSetting);
+              //updateMainSetting(mainSetting);
+              if (mainSettingDao.insert(mainSetting) > 0) {
+                Log.d("DbRepository", "mainSetting insert success");
+              }
               return mainSetting;
             } else {
               return list.get(0);

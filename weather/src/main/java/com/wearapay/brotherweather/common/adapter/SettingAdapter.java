@@ -2,6 +2,7 @@ package com.wearapay.brotherweather.common.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -20,10 +21,12 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.SettingV
   private List<MainPager> mainPagers;
   private Context context;
   private boolean editStatus = false;
+  private final LayoutInflater layoutInflater;
 
   public SettingAdapter(List<MainPager> mainPagers, Context context) {
     this.mainPagers = mainPagers;
     this.context = context;
+    layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
   }
 
   public boolean isEditStatus() {
@@ -35,7 +38,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.SettingV
     notifyDataSetChanged();
   }
 
-  public void setEditStatus(boolean editStatus,List<MainPager> mainPagers) {
+  public void setEditStatus(boolean editStatus, List<MainPager> mainPagers) {
     this.editStatus = editStatus;
     this.mainPagers = mainPagers;
     notifyDataSetChanged();
@@ -50,12 +53,12 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.SettingV
   public interface OnDelClickListener {
     void onClick(int position, MainPager pager);
 
-    void onitemClick(int position, MainPager pager);
+    void onItemClick(int position, MainPager pager);
   }
 
   @Override
   public SettingAdapter.SettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View inflate = View.inflate(context, R.layout.setting_item, null);
+    View inflate = layoutInflater.inflate(R.layout.setting_item, parent, false);
     return new SettingAdapter.SettingViewHolder(inflate);
   }
 
@@ -89,7 +92,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.SettingV
       rootView.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View view) {
           if (onDelClickListener != null) {
-            onDelClickListener.onitemClick(getLayoutPosition(), pager);
+            onDelClickListener.onItemClick(getLayoutPosition(), pager);
           }
         }
       });

@@ -16,4 +16,32 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
+
+
+
+
+    <style name="PopupWindow_Animation_Top" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/translate_enter_from_top</item>
+        <item name="android:windowExitAnimation">@anim/translate_exit_to_top</item>
+    </style>
+
+    <style name="PopupWindow_Animation_Bottom" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/translate_enter_from_bottom</item>
+        <item name="android:windowExitAnimation">@anim/translate_exit_to_bottom</item>
+    </style>
+
+    <style name="PopupWindow_Animation_Right" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/translate_enter_from_right</item>
+        <item name="android:windowExitAnimation">@anim/translate_exit_to_right</item>
+    </style>
+
+    <style name="PopupWindow_Animation_TR" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/scale_enter_from_tr</item>
+        <item name="android:windowExitAnimation">@anim/scale_exit_to_tr</item>
+    </style>
+
+    <style name="PopupWindow_Animation_Scale_Top" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/scale_enter_from_top</item>
+        <item name="android:windowExitAnimation">@anim/scale_exit_to_top</item>
+    </style>
 </resources>

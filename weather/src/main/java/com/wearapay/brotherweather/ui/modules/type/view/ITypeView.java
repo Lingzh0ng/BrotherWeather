@@ -10,4 +10,5 @@ public interface ITypeView extends IBaseView {
 
   void displaySetting(MainSetting mainSetting);
 
+  void updateSetting(boolean success);
 }

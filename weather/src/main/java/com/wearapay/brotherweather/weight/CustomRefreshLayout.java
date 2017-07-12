@@ -376,6 +376,6 @@ public class CustomRefreshLayout extends FrameLayout {
     //      break;
     //  }
     //}
-    return super.onTouchEvent(ev);
+    return true;
   }
 }

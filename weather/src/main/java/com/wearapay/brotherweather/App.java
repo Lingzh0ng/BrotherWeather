@@ -3,6 +3,9 @@ package com.wearapay.brotherweather;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout;
 import com.lcodecore.tkrefreshlayout.header.SinaRefreshView;
 import com.wearapay.brotherweather.dagger2.ApplicationComponent;
@@ -82,5 +85,17 @@ public class App extends Application {
     for (int i = 0; i < activityList.size(); i++) {
       activityList.get(i).finish();
     }
+  }
+
+  public static RequestOptions options = new RequestOptions().centerCrop()
+      .placeholder(R.drawable.ui_ad)
+      .error(R.drawable.ui_ad)
+      .priority(Priority.NORMAL)
+      .centerCrop()
+      .diskCacheStrategy(DiskCacheStrategy.ALL)
+      .skipMemoryCache(true);
+
+  public static RequestOptions getRequestOptions() {
+    return options;
   }
 }

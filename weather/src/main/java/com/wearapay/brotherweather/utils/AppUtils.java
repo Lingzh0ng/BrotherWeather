@@ -142,9 +142,9 @@ public class AppUtils {
 
   public static String formatUTCData(String utc) {
     //String ts = "2007-10-23T17:15:44.000Z";
-    System.out.println("ts = " + utc);
+    //System.out.println("ts = " + utc);
     utc = utc.replace("Z", " UTC");
-    System.out.println("ts = " + utc);
+    //System.out.println("ts = " + utc);
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

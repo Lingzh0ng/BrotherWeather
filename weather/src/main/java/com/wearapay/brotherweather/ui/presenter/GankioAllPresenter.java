@@ -5,7 +5,7 @@ import com.wearapay.brotherweather.common.mvp.BasePresenter;
 import com.wearapay.brotherweather.domain.BaseResult;
 import com.wearapay.brotherweather.domain.GankioData;
 import com.wearapay.brotherweather.domain.GankioType;
-import com.wearapay.brotherweather.net.observer.ViewObserver;
+import com.wearapay.brotherweather.net.observer.GankioViewObserver;
 import com.wearapay.brotherweather.rep.DbRepository;
 import com.wearapay.brotherweather.rep.GankioRepository;
 import com.wearapay.brotherweather.ui.view.IGankioView;
@@ -45,13 +45,12 @@ public class GankioAllPresenter extends BasePresenter<IGankioView> {
                   .subscribe(new Consumer<Boolean>() {
                     @Override public void accept(@NonNull Boolean aBoolean) throws Exception {
                       gankioData.setBrowseHistory(aBoolean);
-                      System.out.println("queryBrowseHistory");
                     }
                   });
             }
             return Observable.just(gankioDataBaseResult);
           }
-        }).subscribe(new ViewObserver<GankioData>(view) {
+        }).subscribe(new GankioViewObserver<GankioData>(view) {
       @Override protected void onSuccess(List<GankioData> t) {
         System.out.println("onSuccess");
         view.display(t);
