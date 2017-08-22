@@ -1,5 +1,6 @@
 package com.wearapay.brotherweather.net.observer;
 
+import com.wearapay.brotherweather.common.mvp.IBaseView;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -11,6 +12,11 @@ import io.reactivex.disposables.Disposable;
 
 public abstract class BaseObserver<T> implements Observer<T> {
 
+    private IBaseView view;
+
+    public BaseObserver(IBaseView view) {
+        this.view = view;
+    }
 
     @Override
     public void onSubscribe(@NonNull Disposable d) {
@@ -23,10 +29,12 @@ public abstract class BaseObserver<T> implements Observer<T> {
     @Override
     public void onError(@NonNull Throwable e) {
         e.printStackTrace();
+        view.hideProgress();
+        view.showMessage(e.getMessage());
     }
 
     @Override
     public void onComplete() {
-
+        view.hideProgress();
     }
 }

@@ -13,7 +13,16 @@
   <array name="gradients">
     <item>#DD4B6B</item>
     <item>#A48CC7</item>
-    <item>#78B1FA </item>
+    <item>#78B1FA</item>
     <item>#1D98D0</item>
   </array>
+
+  <string-array name="types">
+    <item>Android</item>
+    <item>IOS</item>
+    <item>Web</item>
+    <item>Fuli</item>
+    <item>Release</item>
+    <item>Other</item>
+  </string-array>
 </resources>

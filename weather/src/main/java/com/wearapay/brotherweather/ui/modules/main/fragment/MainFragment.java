@@ -1,6 +1,7 @@
 package com.wearapay.brotherweather.ui.modules.main.fragment;
 
 import android.annotation.TargetApi;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
@@ -32,12 +35,14 @@ import com.wearapay.brotherweather.common.listener.AppBarStateChangeListener;
 import com.wearapay.brotherweather.common.utils.StatusBarTextColorUtils;
 import com.wearapay.brotherweather.common.utils.ToastUtils;
 import com.wearapay.brotherweather.domain.GankioData;
+import com.wearapay.brotherweather.domain.GankioType;
 import com.wearapay.brotherweather.domain.MainPager;
-import com.wearapay.brotherweather.ui.presenter.GankioAllPresenter;
-import com.wearapay.brotherweather.ui.view.IGankioView;
 import com.wearapay.brotherweather.ui.modules.main.MainActivity;
+import com.wearapay.brotherweather.ui.modules.main.adapter.MeiziAdapter;
 import com.wearapay.brotherweather.ui.modules.photo.PhotoViewActivity;
 import com.wearapay.brotherweather.ui.modules.web.WebViewActivity;
+import com.wearapay.brotherweather.ui.presenter.GankioAllPresenter;
+import com.wearapay.brotherweather.ui.view.IGankioView;
 import com.wearapay.brotherweather.utils.StatusBarCompat;
 import com.wearapay.brotherweather.weight.CustomRefreshLayout;
 import java.util.ArrayList;
@@ -58,6 +63,16 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
   @BindView(R.id.recyclerView) RecyclerView recyclerView;
   @BindView(R.id.refreshLayout) CustomRefreshLayout refreshLayout;
   Unbinder unbinder;
+  private MeiziAdapter meiziAdapter;
+  private StaggeredGridLayoutManager staggeredGridLayoutManager;
+
+  public void setPager(MainPager pager) {
+    this.pager = pager;
+  }
+
+  public MainPager getPager() {
+    return pager;
+  }
 
   private MainPager pager;
   private List<GankioData> gankioDatas;
@@ -65,6 +80,12 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
   @Inject GankioAllPresenter gankioAllPresenter;
   private MainItemAdapter recyclerAdapter;
   private LinearLayoutManager linearLayoutManager;
+
+  public void setChange(boolean change) {
+    isChange = change;
+  }
+
+  private boolean isChange = false;
 
   public static MainFragment MainCityName(MainPager pager) {
     MainFragment fragment = new MainFragment();
@@ -115,6 +136,7 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
     appbar.getViewTreeObserver()
         .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
           @Override public void onGlobalLayout() {
+            if (appbar == null) return;
             appbar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             int measuredHeight = appbar.getMeasuredHeight();
             refreshLayout.setAppBarHeight(measuredHeight);
@@ -129,6 +151,10 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
     //mainContent = (CoordinatorLayout) view.findViewById(R.id.main_content);
     //ViewCompat.requestApplyInsets(mainContent);
     tvTitle.setText(pager.getType().getType());
+    if (isChange) {
+      fetchData();
+      isChange = false;
+    }
   }
 
   @Override public void fetchData() {
@@ -162,12 +188,55 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
       }
     });
     Glide.with(this).asBitmap().load(pager.getMeiziUrl()).into(backdrop);
-    recyclerAdapter = new MainItemAdapter(gankioDatas, getActivity());
-    linearLayoutManager = new LinearLayoutManager(getContext());
-    recyclerView.setLayoutManager(linearLayoutManager);
-    //recyclerView.addItemDecoration(new DividerItemDecoration());
-    recyclerView.setAdapter(recyclerAdapter);
-
+    if (pager.getType() != GankioType.Fuli) {
+      recyclerAdapter = new MainItemAdapter(gankioDatas, getActivity());
+      linearLayoutManager = new LinearLayoutManager(getContext());
+      recyclerView.setLayoutManager(linearLayoutManager);
+      //recyclerView.addItemDecoration(new DividerItemDecoration());
+      recyclerView.setAdapter(recyclerAdapter);
+      recyclerAdapter.setOnItemClickListener(new MainItemAdapter.OnItemClickListener() {
+        @Override public void onClick(int position, GankioData gankioData) {
+          if (TextUtils.isEmpty(gankioData.getUrl())) {
+            ToastUtils.showShort("链接不存在");
+            return;
+          }
+          gankioData.setBrowseHistory(true);
+          recyclerAdapter.notifyItemChanged(position);
+          gankioAllPresenter.setBrowseHistory(gankioData.get_id());
+          Intent intent = new Intent(getActivity(), WebViewActivity.class);
+          intent.putExtra("url", gankioData.getUrl());
+          getActivity().startActivity(intent);
+        }
+      });
+    } else {
+      meiziAdapter = new MeiziAdapter(gankioDatas, getActivity());
+      staggeredGridLayoutManager =
+          new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+      recyclerView.setLayoutManager(staggeredGridLayoutManager);
+      recyclerView.setAdapter(meiziAdapter);
+      meiziAdapter.setOnMeiziClickListener(new MeiziAdapter.OnMeiziClickListener() {
+        @Override public void onClick(int position, GankioData gankioData, View imageView) {
+          if (TextUtils.isEmpty(gankioData.getUrl())) {
+            ToastUtils.showShort("链接不存在");
+            return;
+          }
+          gankioData.setBrowseHistory(true);
+          meiziAdapter.notifyItemChanged(position);
+          gankioAllPresenter.setBrowseHistory(gankioData.get_id());
+          Intent intent = new Intent(getActivity(), WebViewActivity.class);
+          intent.putExtra("url", gankioData.getUrl());
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options =
+                ActivityOptions.makeSceneTransitionAnimation(getActivity(), imageView,
+                    getString(R.string.translate_mz));
+            startActivity(intent, options.toBundle());
+          } else {
+            startActivity(intent);
+          }
+          //getActivity().startActivity(intent);
+        }
+      });
+    }
     recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
       @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
@@ -176,30 +245,27 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
 
       @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
-        refreshLayout.setRecylerViewPosition(
-            linearLayoutManager.findFirstCompletelyVisibleItemPosition());
+        if (pager.getType() != GankioType.Fuli) {
+          refreshLayout.setRecylerViewPosition(
+              linearLayoutManager.findFirstCompletelyVisibleItemPosition());
+        } else {
+          refreshLayout.setRecylerViewPosition(
+              staggeredGridLayoutManager.findFirstCompletelyVisibleItemPositions(null)[0]);
+        }
       }
     });
     refreshLayout.setOnRefreshListener(new CustomRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
+        i = 1;
+        gankioAllPresenter.getGankioData(pager.getType(), 20, i);
+      }
+
+      @Override public void onLoadMore() {
         gankioAllPresenter.getGankioData(pager.getType(), 20, i++);
       }
     });
-    recyclerAdapter.setOnItemClickListener(new MainItemAdapter.OnItemClickListener() {
-      @Override public void onClick(int position, GankioData gankioData) {
-        if (TextUtils.isEmpty(gankioData.getUrl())) {
-          ToastUtils.showShort("链接不存在");
-          return;
-        }
-        gankioData.setBrowseHistory(true);
-        recyclerAdapter.notifyItemChanged(position);
-        gankioAllPresenter.setBrowseHistory(gankioData.get_id());
-        Intent intent = new Intent(getActivity(), WebViewActivity.class);
-        intent.putExtra("url", gankioData.getUrl());
-        getActivity().startActivity(intent);
-      }
-    });
 
+    refreshLayout.setRecyclerView(recyclerView);
     //refreshLayout.setOnRefreshListener(new RefreshListenerAdapter() {
     //  @Override public void onLoadMore(TwinklingRefreshLayout refreshLayout) {
     //    super.onLoadMore(refreshLayout);
@@ -224,13 +290,19 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
 
   @Override public void onDestroyView() {
     super.onDestroyView();
+    unbindDrawables(recyclerView);
     unbinder.unbind();
   }
 
   @Override public void display(List<GankioData> gankioDatas) {
     finishRefresh();
+    this.gankioDatas.clear();
     this.gankioDatas.addAll(gankioDatas);
-    recyclerAdapter.notifyDataSetChanged();
+    if (pager.getType() != GankioType.Fuli) {
+      recyclerAdapter.notifyDataSetChanged();
+    } else {
+      meiziAdapter.notifyDataSetChanged();
+    }
   }
 
   @Override public void displayError() {
@@ -238,9 +310,7 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
   }
 
   private void finishRefresh() {
-    //refreshLayout.finishRefreshing();
-    //refreshLayout.finishLoadmore();
-    refreshLayout.finishRefresh();
+    if (refreshLayout != null) refreshLayout.finishRefresh();
   }
 
   @OnClick(R.id.backdrop) public void onClick() {
@@ -250,6 +320,18 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
         (ArrayList<GankioData>) ((MainActivity) getActivity()).getGankioDatas();
     intent.putExtra("gankioDatas", gankioDatas);
     startActivity(intent);
+  }
+
+  private void unbindDrawables(View view) {
+    if (view.getBackground() != null) {
+      view.getBackground().setCallback(null);
+    }
+    if (view instanceof ViewGroup && !(view instanceof AdapterView)) {
+      for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+        unbindDrawables(((ViewGroup) view).getChildAt(i));
+      }
+      ((ViewGroup) view).removeAllViews();
+    }
   }
 }
 

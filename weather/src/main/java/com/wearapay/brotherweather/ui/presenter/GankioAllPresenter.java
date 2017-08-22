@@ -5,13 +5,14 @@ import com.wearapay.brotherweather.common.mvp.BasePresenter;
 import com.wearapay.brotherweather.domain.BaseResult;
 import com.wearapay.brotherweather.domain.GankioData;
 import com.wearapay.brotherweather.domain.GankioType;
-import com.wearapay.brotherweather.net.observer.ViewObserver;
+import com.wearapay.brotherweather.net.observer.GankioViewObserver;
 import com.wearapay.brotherweather.rep.DbRepository;
 import com.wearapay.brotherweather.rep.GankioRepository;
 import com.wearapay.brotherweather.ui.view.IGankioView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import java.util.List;
 import javax.inject.Inject;
@@ -39,15 +40,19 @@ public class GankioAllPresenter extends BasePresenter<IGankioView> {
         new Function<BaseResult<GankioData>, ObservableSource<BaseResult<GankioData>>>() {
           @Override public ObservableSource<BaseResult<GankioData>> apply(
               @NonNull BaseResult<GankioData> gankioDataBaseResult) throws Exception {
-            //List<GankioData> results = ;
-            for (GankioData gankioData : gankioDataBaseResult.getResults()) {
-              boolean b = dbRepository.queryBrowseHistory(gankioData.get_id());
-              gankioData.setBrowseHistory(b);
+            for (final GankioData gankioData : gankioDataBaseResult.getResults()) {
+              dbRepository.queryBrowseHistory(gankioData.get_id())
+                  .subscribe(new Consumer<Boolean>() {
+                    @Override public void accept(@NonNull Boolean aBoolean) throws Exception {
+                      gankioData.setBrowseHistory(aBoolean);
+                    }
+                  });
             }
             return Observable.just(gankioDataBaseResult);
           }
-        }).subscribe(new ViewObserver<GankioData>(view) {
+        }).subscribe(new GankioViewObserver<GankioData>(view) {
       @Override protected void onSuccess(List<GankioData> t) {
+        System.out.println("onSuccess");
         view.display(t);
       }
 
@@ -62,7 +67,11 @@ public class GankioAllPresenter extends BasePresenter<IGankioView> {
     getGankioData(type, count, page, true);
   }
 
-  public void setBrowseHistory(String gankioId) {
-    dbRepository.addBrowseHistory(gankioId);
+  public void setBrowseHistory(final String gankioId) {
+    dbRepository.addBrowseHistory(gankioId).subscribe(new Consumer<Boolean>() {
+      @Override public void accept(@NonNull Boolean aBoolean) throws Exception {
+        System.out.println("setBrowseHistory:" + gankioId);
+      }
+    });
   }
 }

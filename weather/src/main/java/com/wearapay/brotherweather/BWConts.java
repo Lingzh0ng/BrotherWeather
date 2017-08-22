@@ -16,4 +16,6 @@ public class BWConts {
       "http://cj.weather.com.cn/support/Detail.aspx?id=51837fba1b35fe0f8411b6df";
 
   public static String GANKIO_HSOT = "http://gank.io/api/";
+
+  public static Long MAIN_SETTING_ID = 10086L;
 }

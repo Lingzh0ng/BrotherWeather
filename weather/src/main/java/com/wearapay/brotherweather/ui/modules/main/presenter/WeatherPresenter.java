@@ -3,7 +3,7 @@ package com.wearapay.brotherweather.ui.modules.main.presenter;
 import android.content.Context;
 import com.wearapay.brotherweather.common.mvp.BasePresenter;
 import com.wearapay.brotherweather.rep.WeatherRepository;
-import com.wearapay.brotherweather.ui.modules.main.view.IWeatherView;
+import com.wearapay.brotherweather.ui.modules.main.view.IMainSettingView;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
  * Created by lyz54 on 2017/6/28.
  */
 
-public class WeatherPresenter extends BasePresenter<IWeatherView> {
+public class WeatherPresenter extends BasePresenter<IMainSettingView> {
     WeatherRepository weatherRepository;
 
     @Inject

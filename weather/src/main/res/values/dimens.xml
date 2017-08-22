@@ -4,4 +4,5 @@
   <dimen name="activity_vertical_margin">16dp</dimen>
   <dimen name="detail_backdrop_height">320dp</dimen>
   <dimen name="rounded_corner_button_radius">3dp</dimen>
+  <dimen name="picker_dialog_margin_lr">30dp</dimen>
 </resources>

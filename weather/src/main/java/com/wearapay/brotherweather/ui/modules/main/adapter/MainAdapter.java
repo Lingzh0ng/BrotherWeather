@@ -26,7 +26,12 @@ public class MainAdapter extends FragmentPagerAdapter {
   }
 
   @Override public Object instantiateItem(ViewGroup container, int position) {
-    return super.instantiateItem(container, position);
+    MainFragment f = (MainFragment) super.instantiateItem(container, position);
+    if (!list.get(position).equals(f.getPager())) {
+      f.setPager(list.get(position));
+      f.setChange(true);
+    }
+    return f;
   }
 
   @Override public void destroyItem(ViewGroup container, int position, Object object) {
@@ -38,7 +43,18 @@ public class MainAdapter extends FragmentPagerAdapter {
     return fragment;
   }
 
+  @Override public int getItemPosition(Object object) {
+    return POSITION_NONE;
+  }
+
   @Override public int getCount() {
     return list.size();
+  }
+
+  public void notifyDataSetChanged(List<MainPager> list) {
+    System.out.println(list);
+    this.list.clear();
+    this.list.addAll(list);
+    super.notifyDataSetChanged();
   }
 }

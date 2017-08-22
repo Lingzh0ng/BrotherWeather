@@ -58,12 +58,12 @@ public class MainIndicator extends View {
     mPath = new Path();
     mPaint.setStyle(Paint.Style.FILL);
     mSPaint.setStyle(Paint.Style.FILL);
-    dColor = getContext().getColor(R.color.hui);
-    sColor = getContext().getColor(R.color.hei);
+    dColor = getContext().getResources().getColor(R.color.hui);
+    sColor = getContext().getResources().getColor(R.color.hei);
     mPaint.setColor(dColor);
     mPaint.setColor(sColor);
     density = getResources().getDisplayMetrics().density;
-    padding = (int) (density * 10);
+    padding = (int) (density * 5);
     docWidth = (int) (density * 5);
   }
 
@@ -77,8 +77,8 @@ public class MainIndicator extends View {
     //startR = width / 2 - padding / 2 - docWidth;
     startR = width / 2 - (padding * (num - 1) + docWidth * num) / 2;
     top = getMeasuredHeight() / 2;
-    //System.out.println(width);
-    //System.out.println(startR);
+    System.out.println(width);
+    System.out.println(startR);
     for (int i = 0; i < num; i++) {
       Paint paint = mPaint;
       if (select == i) {
@@ -94,8 +94,8 @@ public class MainIndicator extends View {
         canvas.drawPath(mPath, paint);
         //System.out.println(startR + docWidth / 2);
       } else {
-        canvas.drawCircle(startR + padding * i + docWidth / 2, top, docWidth / 2, paint);
-        //System.out.println(startR + padding * i + docWidth / 2);
+        canvas.drawCircle(startR + padding * i + docWidth * i + docWidth / 2, top,
+            docWidth / 2, paint);
       }
     }
     //if (select == 0) {

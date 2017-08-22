@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="@drawable/item_selector"
+    android:orientation="horizontal"
+    >
+  <ImageView
+      android:id="@+id/ivCancel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerVertical="true"
+      android:layout_marginStart="20dp"
+      android:scaleType="center"
+      android:src="@drawable/cancel_type"
+      />
+
+  <TextView
+      android:id="@+id/tvName"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:padding="20dp"
+      android:text="Android"
+      android:textSize="22dp"
+      />
+</RelativeLayout>
