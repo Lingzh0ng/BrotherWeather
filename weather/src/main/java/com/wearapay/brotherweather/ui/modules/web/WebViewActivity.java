@@ -1,7 +1,6 @@
 package com.wearapay.brotherweather.ui.modules.web;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -58,6 +57,7 @@ public class WebViewActivity extends BWBaseActivity {
     Intent intent = getIntent();
     String url = intent.getStringExtra("url");
     ivMenu.setImageResource(R.drawable.cancel);
+    //initSonic(url);
     initWebView(url);
     refreshLayout.setEnableLoadmore(false);
     refreshLayout.setOnRefreshListener(new RefreshListenerAdapter() {
@@ -67,14 +67,14 @@ public class WebViewActivity extends BWBaseActivity {
       }
     });
     floatingActionButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
+      @Override public void onClick(View view) {
         Snackbar.make(view, "加入收藏夹?", Snackbar.LENGTH_LONG)
             .setAction("收藏", new View.OnClickListener() {
               @Override public void onClick(View view) {
                 ToastUtils.showShort("成功");
               }
-            }).show();
+            })
+            .show();
       }
     });
   }
@@ -91,6 +91,13 @@ public class WebViewActivity extends BWBaseActivity {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setAllowFileAccess(true);
     webSettings.setDomStorageEnabled(true);
+
+    webSettings.setAllowContentAccess(true);
+    webSettings.setDatabaseEnabled(true);
+    webSettings.setAppCacheEnabled(true);
+    webSettings.setSavePassword(false);
+    webSettings.setSaveFormData(false);
+
     wvContent.setWebChromeClient(new WebChromeClient() {
       @Override public void onReceivedTitle(WebView view, String title) {
         super.onReceivedTitle(view, title);
@@ -133,20 +140,6 @@ public class WebViewActivity extends BWBaseActivity {
         return false;
       }
 
-      @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        super.onPageStarted(view, url, favicon);
-      }
-
-      @Override public void onReceivedError(WebView view, int errorCode, String description,
-          String failingUrl) {
-        super.onReceivedError(view, errorCode, description, failingUrl);
-        //NetworkInfo networkInfo = PayPOSUtils.getNetWorkInfo(getActivity());
-        //if (networkInfo == null || !networkInfo.isConnected()) {
-        //cevEmptyView.displayNoNetwork();
-        //}
-        //failing = true;
-      }
-
       @Override public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         if (showDocumentTitle && titleStack.size() > 0) {
@@ -180,7 +173,10 @@ public class WebViewActivity extends BWBaseActivity {
   }
 
   @Override protected void onDestroy() {
+    if (null != wvContent) {
+      wvContent.destroy();
+      wvContent = null;
+    }
     super.onDestroy();
-    wvContent.destroy();
   }
 }

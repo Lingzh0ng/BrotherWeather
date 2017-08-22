@@ -1,10 +1,7 @@
 package com.wearapay.brotherweather.ui.modules.main;
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
@@ -132,18 +129,7 @@ public class MainActivity extends BWBaseActivity implements IGankioView, IMainSe
         startActivityForResult(intent, REQ_CODE_SETTING);
         break;
       case R.id.ivSetting:
-        //Bitmap btm = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher1);
-        NotificationCompat.Builder mBuilder =
-            new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher1)
-                //.setColor(Color.parseColor("#FB793A"))
-                .setContentTitle("标题")
-                .setContentText("我是内容");
-        mBuilder.setTicker("有通知来了");
-        //mBuilder.setLargeIcon(btm);
-        mBuilder.setAutoCancel(true);
-        NotificationManager mNotificationManager =
-            (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());
+
         break;
     }
   }

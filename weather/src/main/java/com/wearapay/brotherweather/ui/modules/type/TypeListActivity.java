@@ -161,6 +161,7 @@ public class TypeListActivity extends BWBaseActivity implements ITypeView {
         if (handleMainSetting()) typeListPresenter.updateMainSetting(mainSetting);
       }
     });
+    typeListDialog.setCancelable(false);
   }
 
   private boolean handleMainSetting() {

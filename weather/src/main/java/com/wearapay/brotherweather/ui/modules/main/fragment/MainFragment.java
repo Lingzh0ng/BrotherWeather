@@ -256,10 +256,16 @@ public class MainFragment extends BaseLazyFragment implements IGankioView {
     });
     refreshLayout.setOnRefreshListener(new CustomRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
+        i = 1;
+        gankioAllPresenter.getGankioData(pager.getType(), 20, i);
+      }
+
+      @Override public void onLoadMore() {
         gankioAllPresenter.getGankioData(pager.getType(), 20, i++);
       }
     });
 
+    refreshLayout.setRecyclerView(recyclerView);
     //refreshLayout.setOnRefreshListener(new RefreshListenerAdapter() {
     //  @Override public void onLoadMore(TwinklingRefreshLayout refreshLayout) {
     //    super.onLoadMore(refreshLayout);

@@ -15,6 +15,7 @@
       android:layout_height="match_parent"
       android:background="#00ffffff"
       android:fitsSystemWindows="true"
+      android:addStatesFromChildren="true"
       >
 
     <android.support.design.widget.AppBarLayout
@@ -22,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/detail_backdrop_height"
         android:fitsSystemWindows="true"
+        android:clipChildren="false"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         >
 
@@ -30,6 +32,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:fitsSystemWindows="true"
+          app:expandedTitleMarginStart="10dp"
           app:collapsedTitleGravity="center"
           app:contentScrim="?attr/colorPrimary"
           app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"

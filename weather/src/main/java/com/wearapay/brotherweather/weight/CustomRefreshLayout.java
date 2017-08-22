@@ -1,10 +1,11 @@
 package com.wearapay.brotherweather.weight;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -31,6 +32,11 @@ public class CustomRefreshLayout extends FrameLayout {
   private ImageView ivArrow;
   private ImageView ivLoading;
   private TextView tv;
+  private View mFooterView;
+  private int mFooterViewHeight;
+  private int mHFooterViewPadding;
+  private boolean openLoadMore;
+  private float lastY;
 
   public int getAppBarHeight() {
     return appBarHeight;
@@ -44,7 +50,11 @@ public class CustomRefreshLayout extends FrameLayout {
 
   private float mDownY;
 
-  private float mMinimumFling;
+  private RecyclerView recyclerView;
+
+  public void setRecyclerView(RecyclerView recyclerView) {
+    this.recyclerView = recyclerView;
+  }
 
   private AppBarStateChangeListener.State appBarStatus = AppBarStateChangeListener.State.EXPANDED;
   private AppBarStateChangeListener.State lastAppBarStatus =
@@ -56,10 +66,7 @@ public class CustomRefreshLayout extends FrameLayout {
   private int measuredWidth;
 
   enum RefreshStatus {
-    REFRESHING,
-    CLOSE,
-    OPEN,
-    COMPLETE
+    REFRESHING, CLOSE, OPEN, COMPLETE, LOAD_MORE
   }
 
   private OnRefreshListener onRefreshListener;
@@ -70,11 +77,13 @@ public class CustomRefreshLayout extends FrameLayout {
 
   public interface OnRefreshListener {
     void onRefresh();
+
+    void onLoadMore();
   }
 
   private void updateStatus() {
     System.out.println("currentStatus : " + currentStatus);
-    if (currentStatus == RefreshStatus.OPEN) {
+    if (currentStatus == RefreshStatus.OPEN && recylerViewPosition == 0) {
       if (v > 0 && v <= mHeaderViewHeight) {
         //TODO
         tv.setText("下拉刷新");
@@ -88,8 +97,9 @@ public class CustomRefreshLayout extends FrameLayout {
       rotateImageView(ivArrow, v);
     } else if (currentStatus == RefreshStatus.CLOSE) {
       v = 0;
-      getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
-      getChildAt(1).setPadding(0, (int) v, 0, 0);
+      //getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
+      getChildAt(1).setPadding(0, mFooterViewHeight, 0, 0);
+      getChildAt(2).setPadding(0, (int) v, 0, 0);
       rotateImageView(ivArrow, v);
     } else if (currentStatus == RefreshStatus.REFRESHING) {
       v = mHeaderViewHeight;
@@ -97,8 +107,8 @@ public class CustomRefreshLayout extends FrameLayout {
       ivLoading.setVisibility(VISIBLE);
       startLoadingAnimation(ivLoading);
       tv.setText("正在刷新");
-      getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
-      getChildAt(1).setPadding(0, (int) v, 0, 0);
+      //getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
+      getChildAt(2).setPadding(0, (int) v, 0, 0);
       if (onRefreshListener != null) {
         onRefreshListener.onRefresh();
       }
@@ -106,32 +116,18 @@ public class CustomRefreshLayout extends FrameLayout {
       currentStatus = RefreshStatus.CLOSE;
       ivArrow.setVisibility(GONE);
       ivLoading.setVisibility(GONE);
-      //AppUtils.endWithAnimation(ivLoading, new Supplier<Void>() {
-      //  @Override public Void get() {
-      //    return null;
-      //  }
-      //});
-      //ivLoading.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-      //  @Override public void onAnimationStart(Animation animation) {
-      //
-      //  }
-      //
-      //  @Override public void onAnimationEnd(Animation animation) {
-      //
-      //  }
-      //
-      //  @Override public void onAnimationRepeat(Animation animation) {
-      //
-      //  }
-      //});
       ivLoading.clearAnimation();
       tv.setText("刷新成功");
       updateStatus();
+    } else if (currentStatus == RefreshStatus.LOAD_MORE) {
+      if (onRefreshListener != null) {
+        onRefreshListener.onLoadMore();
+      }
     }
   }
 
   public void finishRefresh() {
-    if (currentStatus == RefreshStatus.REFRESHING) {
+    if (currentStatus == RefreshStatus.REFRESHING || currentStatus == RefreshStatus.LOAD_MORE) {
       currentStatus = RefreshStatus.COMPLETE;
       updateStatus();
     }
@@ -196,32 +192,29 @@ public class CustomRefreshLayout extends FrameLayout {
     ivLoading = (ImageView) mHeaderView.findViewById(R.id.iv_loading);
     tv = (TextView) mHeaderView.findViewById(R.id.tv);
     mHeaderViewHeight = layoutParams.height;
-    mHeaderViewPadding = (int) (mHeaderViewHeight + density * 66);
+    mHeaderViewPadding = (int) (mHeaderViewHeight);
+    mFooterView = View.inflate(getContext(), R.layout.add_more_footer, null);
+    FrameLayout.LayoutParams footerLayoutParams =
+        new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT);
+    footerLayoutParams.height = (int) (density * 44);
+    footerLayoutParams.gravity = Gravity.BOTTOM;
+    mFooterViewHeight = footerLayoutParams.height;
+    mHFooterViewPadding = footerLayoutParams.height;
+    mFooterView.setLayoutParams(footerLayoutParams);
+    this.addView(mFooterView);
+    //mHeaderView.setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
+    mFooterView.setPadding(0, mFooterViewHeight, 0, 0);
+    //getChildAt(2).setPadding(0, (int) v, 0, 0);
   }
 
   @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    //if (getChildCount() < 2) throw new IllegalArgumentException("childCount < 2");
-    //mHeaderView = getChildAt(0);
-    //mContextView = getChildAt(1);
-    mMinimumFling = ViewConfiguration.get(getContext()).getScaledMinimumFlingVelocity();
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    //if (mHeaderView != null) {
-    //  measureChild(mHeaderView, widthMeasureSpec, heightMeasureSpec);
-    //  mHeaderViewHeight = mHeaderView.getMeasuredHeight();
-    //  mHeaderViewPadding = (int) (mHeaderViewHeight + density * 66);
-    //  System.out.println(
-    //      "mHeaderViewHeight:" + mHeaderViewHeight + "  mHeaderViewPadding:" + mHeaderViewPadding);
-    //}
     measuredWidth = getMeasuredWidth();
   }
 
   @Override protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    View childAt = getChildAt(0);
-    childAt.layout(left, top, right, 0);
-    View childAt2 = getChildAt(1);
-    childAt2.layout(left, mHeaderViewHeight, right, bottom);
-    getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
-    getChildAt(1).setPadding(0, (int) v, 0, 0);
+    if (getChildCount() != 3) throw new IllegalArgumentException("must 3 child");
     super.onLayout(changed, left, top, right, bottom);
   }
 
@@ -239,19 +232,21 @@ public class CustomRefreshLayout extends FrameLayout {
           mDownY = ev.getY();
           break;
         case MotionEvent.ACTION_MOVE:
-          if (mDownY == 0) {
-            mDownY = ev.getY();
+          if (lastY == 0) {
+            lastY = ev.getY();
           }
-          v = ev.getY() - mDownY;
+          v = v + (ev.getY() - lastY);
+          lastY = ev.getY();
+          //v = ev.getY() - mDownY;
           if (v > 0 && v <= mHeaderViewPadding) {
             currentStatus = RefreshStatus.OPEN;
             if (lastAppBarStatus != AppBarStateChangeListener.State.COLLAPSED) {
-              getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
-              getChildAt(1).setPadding(0, (int) v, 0, 0);
+              //getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
+              getChildAt(2).setPadding(0, (int) v, 0, 0);
               System.out.println("x: " + getChildAt(0).getPaddingTop());
             } else {
-              getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v + appBarHeight), 0, 0);
-              getChildAt(1).setPadding(0, (int) v + appBarHeight, 0, 0);
+              //getChildAt(0).setPadding(0, (int) (-mHeaderViewHeight + v + appBarHeight), 0, 0);
+              getChildAt(2).setPadding(0, (int) v + appBarHeight, 0, 0);
             }
             System.out.println(v);
 
@@ -265,6 +260,7 @@ public class CustomRefreshLayout extends FrameLayout {
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_CANCEL:
           mDownY = 0;
+          lastY = 0;
           if (v > 0 && v <= mHeaderViewPadding / 2) {
             currentStatus = RefreshStatus.CLOSE;
             updateStatus();
@@ -306,76 +302,115 @@ public class CustomRefreshLayout extends FrameLayout {
         }
       }
     }*/
+
+    if (isSlideToBottom(recyclerView) && currentStatus != RefreshStatus.LOAD_MORE) {
+      switch (ev.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+          mDownY = ev.getY();
+          break;
+        case MotionEvent.ACTION_MOVE:
+          if (lastY == 0) {
+            lastY = ev.getY();
+          }
+          openLoadMore = true;
+
+          v = v + (lastY - ev.getY());
+          //if (lastY - ev.getY() > 10) {//向下
+          //} else {
+          //  v = mDownY - ev.getY();
+          //}
+          lastY = ev.getY();
+          System.out.println(v);
+          if (v > 0 && v <= mFooterViewHeight) {
+            currentStatus = RefreshStatus.OPEN;
+            getChildAt(2).setPadding(0, 0, 0, (int) (v));
+            getChildAt(1).setPadding(0, (int) (mFooterViewHeight - v), 0, 0);
+            System.out.println("mDownY: " + mDownY);
+            updateStatus();
+            return true;
+          }
+          if (v > mFooterViewHeight) {
+            v = mFooterViewHeight;
+          }
+          if (v < 0) {
+            v = 0;
+          }
+          break;
+        case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_CANCEL:
+          openLoadMore = false;
+          mDownY = 0;
+          lastY = 0;
+          if (v > 0 && v <= mFooterViewHeight / 2) {
+            currentStatus = RefreshStatus.CLOSE;
+            updateStatus();
+          } else if (v > mFooterViewHeight / 2 && v <= mFooterViewHeight) {
+            currentStatus = RefreshStatus.LOAD_MORE;
+            updateStatus();
+          }
+          return super.dispatchTouchEvent(ev);
+      }
+    }
     if ((ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL)
         && currentStatus == RefreshStatus.OPEN) {
       mDownY = 0;
-      if (v > 0 && v <= mHeaderViewPadding / 2) {
-        currentStatus = RefreshStatus.CLOSE;
-        updateStatus();
-      } else if (v > mHeaderViewPadding / 2 && v <= mHeaderViewPadding) {
-        currentStatus = RefreshStatus.REFRESHING;
-        updateStatus();
+      if (recylerViewPosition == 0) {
+        if (v > 0 && v <= mHeaderViewPadding / 2) {
+          currentStatus = RefreshStatus.CLOSE;
+          updateStatus();
+        } else if (v > mHeaderViewPadding / 2 && v <= mHeaderViewPadding) {
+          currentStatus = RefreshStatus.REFRESHING;
+          updateStatus();
+        }
+      } else {
+        openLoadMore = false;
+        if (v > 0 && v <= mFooterViewHeight / 2) {
+          currentStatus = RefreshStatus.CLOSE;
+          updateStatus();
+        } else if (v > mFooterViewHeight / 2 && v <= mFooterViewHeight) {
+          currentStatus = RefreshStatus.LOAD_MORE;
+          updateStatus();
+        }
+      }
+      if (currentStatus != RefreshStatus.LOAD_MORE
+          || currentStatus != RefreshStatus.REFRESHING) {
+        openLoadMore = false;
+        v = 0;
+        post(new Runnable() {
+          @Override public void run() {
+            getChildAt(1).setPadding(0, mFooterViewHeight, 0, 0);
+            getChildAt(2).setPadding(0, 0, 0, 0);
+          }
+        });
       }
     }
     if (currentStatus == RefreshStatus.CLOSE) {
+      openLoadMore = false;
       v = 0;
-      getChildAt(0).setPadding(0, -mHeaderViewHeight, 0, 0);
-      getChildAt(1).setPadding(0, 0, 0, 0);
+      post(new Runnable() {
+        @Override public void run() {
+          getChildAt(1).setPadding(0, mFooterViewHeight, 0, 0);
+          getChildAt(2).setPadding(0, 0, 0, 0);
+        }
+      });
     }
     return super.dispatchTouchEvent(ev);
   }
 
   @Override public boolean onInterceptTouchEvent(MotionEvent ev) {
-    //if (appBarStatus == AppBarStateChangeListener.State.EXPANDED
-    //    && recylerViewPosition == 0
-    //    && currentStatus != RefreshStatus.REFRESHING) {
-    //
-    //  switch (ev.getAction()) {
-    //    case MotionEvent.ACTION_DOWN:
-    //      mDownY = ev.getY();
-    //      break;
-    //    case MotionEvent.ACTION_MOVE:
-    //      float v =ev.getY() -  mDownY;
-    //      if (v > mMinimumFling) {
-    //        return true;
-    //      }
-    //      break;
-    //    //case MotionEvent.ACTION_UP:
-    //    //  break;
-    //    //case MotionEvent.ACTION_CANCEL:
-    //    //  break;
-    //  }
-    //}
     return super.onInterceptTouchEvent(ev);
   }
 
   @Override public boolean onTouchEvent(MotionEvent ev) {
-    //if (appBarStatus == AppBarStateChangeListener.State.EXPANDED
-    //    && recylerViewPosition == 0
-    //    && currentStatus != RefreshStatus.REFRESHING) {
-    //  System.out.println(ev.getAction() == 2);
-    //  switch (ev.getAction()) {
-    //    case MotionEvent.ACTION_DOWN:
-    //      mDownY = ev.getY();
-    //      return true;
-    //    case MotionEvent.ACTION_MOVE:
-    //      float v =ev.getY() -  mDownY;
-    //      if (v > mMinimumFling) {
-    //        currentPadding = mHeaderView.getPaddingTop();
-    //        //mHeaderView.setPadding(0, (int) (-mHeaderViewHeight + v), 0, 0);
-    //        getChildAt(0).layout(0, (int) (-mHeaderViewHeight + v), measuredWidth, (int) v);
-    //        View childAt2 = getChildAt(2);
-    //        childAt2.layout(0, (int) v, measuredWidth, (int) (getMeasuredHeight() + v));
-    //        System.out.println(v);
-    //        return true;
-    //      }
-    //      break;
-    //    case MotionEvent.ACTION_UP:
-    //      break;
-    //    case MotionEvent.ACTION_CANCEL:
-    //      break;
-    //  }
-    //}
     return true;
+  }
+
+  protected boolean isSlideToBottom(RecyclerView recyclerView) {
+    if (recyclerView == null) return false;
+    if (recyclerView.computeVerticalScrollExtent() + recyclerView.computeVerticalScrollOffset()
+        >= recyclerView.computeVerticalScrollRange()) {
+      return true;
+    }
+    return openLoadMore;
   }
 }
